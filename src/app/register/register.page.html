@@ -1,0 +1,98 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="cinema-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/auth"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Create account</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <main class="register-shell">
+    <section class="register-heading">
+      <span>JOIN CINEMATCH</span>
+      <h1>Your movie profile</h1>
+      <p>Your photo and preferences help other cinema lovers recognize you.</p>
+    </section>
+
+    <section class="photo-section">
+      <div class="photo-preview" [class.has-photo]="photoUrl()">
+        @if (photoUrl()) {
+        <img [src]="photoUrl()" alt="Captured profile" />
+        } @else {
+        <ion-icon name="camera-outline"></ion-icon>
+        }
+      </div>
+      <div>
+        <h2>Profile photo</h2>
+        <p>Required · Capture it using the phone camera.</p>
+        <ion-button fill="outline" size="small" (click)="takePhoto()">
+          @if (cameraLoading()) {
+          <ion-spinner name="crescent"></ion-spinner>
+          } @else {
+          <ion-icon slot="start" name="camera-outline"></ion-icon>
+          {{ photoUrl() ? 'Retake photo' : 'Open camera' }} }
+        </ion-button>
+      </div>
+    </section>
+
+    <form [formGroup]="registrationForm" (ngSubmit)="register()">
+      <div class="form-grid">
+        <div class="input-card">
+          <ion-input
+            label="First name"
+            labelPlacement="stacked"
+            placeholder="Youssef"
+            formControlName="firstName"
+          ></ion-input>
+        </div>
+        <div class="input-card">
+          <ion-input
+            label="Last name"
+            labelPlacement="stacked"
+            placeholder="Ben Salem"
+            formControlName="lastName"
+          ></ion-input>
+        </div>
+        <div class="input-card age-field">
+          <ion-input type="number" label="Age" labelPlacement="stacked" formControlName="age"></ion-input>
+        </div>
+        <div class="input-card email-field">
+          <ion-input
+            type="email"
+            label="Email"
+            labelPlacement="stacked"
+            placeholder="name@example.com"
+            formControlName="email"
+          ></ion-input>
+        </div>
+        <div class="input-card password-field">
+          <ion-input
+            type="password"
+            label="Password"
+            labelPlacement="stacked"
+            placeholder="Minimum 6 characters"
+            formControlName="password"
+          ></ion-input>
+        </div>
+      </div>
+
+      <div class="privacy-note">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <span>Your account is active by default and can only be disabled—not deleted—by an admin.</span>
+      </div>
+
+      @if (errorMessage()) {
+      <ion-note class="error-note" color="danger">{{ errorMessage() }}</ion-note>
+      }
+
+      <ion-button type="submit" expand="block" size="large" [disabled]="registrationForm.invalid">
+        @if (loading()) {
+        <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+        <ion-icon slot="start" name="person-add-outline"></ion-icon>
+        Create my account }
+      </ion-button>
+    </form>
+  </main>
+</ion-content>
