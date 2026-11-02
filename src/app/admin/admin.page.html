@@ -1,0 +1,153 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="admin-toolbar">
+    <ion-title>
+      <span>ADMIN CONSOLE</span>
+      CineMatch
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button aria-label="Open movie catalogue" (click)="openCatalogue()">
+        <ion-icon slot="icon-only" name="videocam-outline"></ion-icon>
+      </ion-button>
+      <ion-button aria-label="Sign out" (click)="logout()">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <main class="admin-shell">
+    <section class="admin-hero">
+      <div>
+        <span>CONTROL CENTER · {{ appData.modeLabel.toUpperCase() }}</span>
+        <h1>Manage the cinema community</h1>
+        <p>Add films to the catalogue and control account access without deleting user data.</p>
+      </div>
+      <div class="admin-stats">
+        <article><strong>{{ appData.customMovies().length }}</strong><span>Added films</span></article>
+        <article><strong>{{ appData.users().length - 1 }}</strong><span>Users</span></article>
+        <article>
+          <strong>{{ disabledUserCount() }}</strong>
+          <span>Disabled</span>
+        </article>
+      </div>
+    </section>
+
+    <nav class="admin-nav" aria-label="Administration sections">
+      <button [class.active]="activeSection() === 'movies'" (click)="activeSection.set('movies')">
+        <ion-icon name="film-outline"></ion-icon>
+        Add movie
+      </button>
+      <button [class.active]="activeSection() === 'users'" (click)="activeSection.set('users')">
+        <ion-icon name="people-outline"></ion-icon>
+        Users
+      </button>
+    </nav>
+
+    @if (activeSection() === 'movies') {
+    <section class="admin-panel">
+      <div class="panel-heading">
+        <span>CATALOGUE</span>
+        <h2>Add a new film</h2>
+        <p>This movie is stored in Firestore when Firebase mode is enabled.</p>
+      </div>
+
+      <form [formGroup]="movieForm" (ngSubmit)="addMovie()">
+        <div class="field-grid">
+          <div class="admin-field title-field">
+            <ion-input
+              label="Title"
+              labelPlacement="stacked"
+              placeholder="Movie title"
+              formControlName="title"
+            ></ion-input>
+          </div>
+          <div class="admin-field">
+            <ion-input
+              type="number"
+              label="Release year"
+              labelPlacement="stacked"
+              formControlName="releaseYear"
+            ></ion-input>
+          </div>
+          <div class="admin-field full-field">
+            <ion-textarea
+              label="Overview"
+              labelPlacement="stacked"
+              placeholder="Short movie synopsis"
+              [autoGrow]="true"
+              formControlName="overview"
+            ></ion-textarea>
+          </div>
+          <div class="admin-field">
+            <ion-input
+              label="Genres"
+              labelPlacement="stacked"
+              placeholder="Drama, Thriller"
+              formControlName="genres"
+            ></ion-input>
+          </div>
+          <div class="admin-field">
+            <ion-input
+              label="Main actors"
+              labelPlacement="stacked"
+              placeholder="Actor One, Actor Two"
+              formControlName="actors"
+            ></ion-input>
+          </div>
+          <div class="admin-field full-field">
+            <ion-input
+              type="url"
+              label="Poster URL (optional)"
+              labelPlacement="stacked"
+              placeholder="https://..."
+              formControlName="posterUrl"
+            ></ion-input>
+          </div>
+        </div>
+        <ion-button type="submit" expand="block" size="large" [disabled]="movieForm.invalid">
+          <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+          Add to catalogue
+        </ion-button>
+      </form>
+    </section>
+    } @else {
+    <section class="admin-panel">
+      <div class="panel-heading">
+        <span>ACCESS MANAGEMENT</span>
+        <h2>User accounts</h2>
+        <p>Switching a user off preserves their profile and favorites.</p>
+      </div>
+
+      <div class="user-list">
+        @for (user of appData.users(); track user.id) { @if (user.role !== 'admin') {
+        <article class="user-row" [class.disabled-user]="!user.active">
+          <div class="user-avatar">
+            @if (user.photoUrl) {
+            <img [src]="user.photoUrl" [alt]="user.firstName" />
+            } @else { {{ initials(user) }} }
+          </div>
+          <div class="user-copy">
+            <h3>{{ user.firstName }} {{ user.lastName }}</h3>
+            <p>{{ user.email }} · {{ user.favorites.length }} favorites</p>
+          </div>
+          <div class="status-control">
+            <ion-toggle
+              [checked]="user.active"
+              [attr.aria-label]="'Activate ' + user.firstName"
+              (ionChange)="updateUserStatus(user, $event)"
+            ></ion-toggle>
+            <span>{{ user.active ? 'Active' : 'Disabled' }}</span>
+          </div>
+        </article>
+        } }
+      </div>
+    </section>
+    } @if (!appData.firebaseEnabled) {
+    <ion-button class="reset-button" fill="clear" color="medium" (click)="resetDemo()">
+      <ion-icon slot="start" name="refresh-outline"></ion-icon>
+      Reset all demo data
+    </ion-button>
+    }
+  </main>
+</ion-content>

@@ -1,0 +1,101 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="cinema-toolbar">
+    <ion-title>Movie matches</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <main class="matches-shell">
+    <section class="match-hero">
+      <div class="hero-icon"><ion-icon name="sparkles"></ion-icon></div>
+      <span>SMART COMPATIBILITY</span>
+      <h1>Find your movie people</h1>
+      <p>
+        Results combine shared movies, genres, actors, and release years. Only scores above
+        <strong>75%</strong> are shown.
+      </p>
+      <div class="formula-grid">
+        <div><strong>45%</strong><span>Movies</span></div>
+        <div><strong>25%</strong><span>Genres</span></div>
+        <div><strong>20%</strong><span>Actors</span></div>
+        <div><strong>10%</strong><span>Years</span></div>
+      </div>
+    </section>
+
+    <section class="matches-heading">
+      <div>
+        <span>COMPATIBLE PROFILES</span>
+        <h2>{{ matchingService.matches().length }} strong matches</h2>
+      </div>
+      <ion-icon name="people-outline"></ion-icon>
+    </section>
+
+    <section class="match-list">
+      @for (match of matchingService.matches(); track match.user.id) {
+      <article class="match-card">
+        <div class="match-top">
+          <div class="user-avatar">
+            @if (match.user.photoUrl) {
+            <img [src]="match.user.photoUrl" [alt]="match.user.firstName" />
+            } @else { {{ initials(match.user.firstName, match.user.lastName) }} }
+          </div>
+          <div class="user-copy">
+            <span>{{ match.user.age }} YEARS OLD</span>
+            <h3>{{ match.user.firstName }} {{ match.user.lastName }}</h3>
+            <p>{{ match.sharedMovies.length }} shared favorite movies</p>
+          </div>
+          <div class="score-orbit">
+            <strong>{{ match.score }}%</strong>
+            <span>match</span>
+          </div>
+        </div>
+
+        <div class="breakdown-grid">
+          <div>
+            <span>Movies <strong>{{ match.breakdown.movies }}%</strong></span>
+            <ion-progress-bar [value]="match.breakdown.movies / 100"></ion-progress-bar>
+          </div>
+          <div>
+            <span>Genres <strong>{{ match.breakdown.genres }}%</strong></span>
+            <ion-progress-bar [value]="match.breakdown.genres / 100"></ion-progress-bar>
+          </div>
+          <div>
+            <span>Actors <strong>{{ match.breakdown.actors }}%</strong></span>
+            <ion-progress-bar [value]="match.breakdown.actors / 100"></ion-progress-bar>
+          </div>
+          <div>
+            <span>Release years <strong>{{ match.breakdown.releaseYears }}%</strong></span>
+            <ion-progress-bar [value]="match.breakdown.releaseYears / 100"></ion-progress-bar>
+          </div>
+        </div>
+
+        <div class="shared-block">
+          <span>SHARED FAVORITES</span>
+          <div class="shared-posters">
+            @for (movie of match.sharedMovies.slice(0, 4); track movie.id) {
+            <div [title]="movie.title">
+              @if (movie.posterUrl) {
+              <img [src]="movie.posterUrl" [alt]="movie.title" />
+              } @else { {{ movie.title.charAt(0) }} }
+            </div>
+            }
+          </div>
+        </div>
+
+        <div class="genre-chips">
+          @for (genre of match.sharedGenres.slice(0, 4); track genre) {
+          <ion-chip>{{ genre }}</ion-chip>
+          }
+        </div>
+      </article>
+      } @empty {
+      <div class="empty-matches">
+        <div><ion-icon name="film-outline"></ion-icon></div>
+        <h2>No match above 75% yet</h2>
+        <p>Add more favorites across several genres to improve the matching calculation.</p>
+        <ion-button routerLink="/tabs/discover">Choose movies</ion-button>
+      </div>
+      }
+    </section>
+  </main>
+</ion-content>
