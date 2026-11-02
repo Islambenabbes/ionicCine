@@ -101,24 +101,47 @@ npm run test:e2e
 
 ## Android packaging
 
+### First-time setup and native Android generation
+
+Ionic apps use Capacitor to connect the web app to native Android code. In this
+project, “ejecting” means adding Capacitor's native Android project; it does not
+remove Ionic or Angular. These commands were used from the project root. The
+Android platform add command is needed only once:
+
+```bash
+npm install
+npm install --save-exact @capacitor/android@8.6.0
+npm run build
+npx cap add android
+npx cap sync android
+```
+
+`npm run build` compiles Angular into `www/`. `npx cap add android` creates the
+native `android/` Gradle project. `npx cap sync android` copies the compiled
+web assets and installed Capacitor plugins into that project. Repeat the build
+and sync commands after web or plugin changes.
+
+### Build the APK
+
 The generated Android project requires JDK 21 and Android SDK API 36. Android
-Studio provides both, or they can be installed with the Android command-line
-tools. From the project root, rebuild and synchronize the web application:
+Studio provides both; the build also works with the Android command-line SDK.
+From the project root:
 
 ```bash
 npm run build
 npx cap sync android
+cd android && ./gradlew assembleDebug
 ```
 
-Then create the installable debug APK:
+Gradle compiles and packages the native shell with the web assets, then signs
+the debug build with the standard debug key. The installable APK is written to
+`android/app/build/outputs/apk/debug/app-debug.apk`. Install it on a connected
+device with:
 
 ```bash
-cd android
-./gradlew assembleDebug
+adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-The APK is written to `android/app/build/outputs/apk/debug/app-debug.apk` and
-can be installed on a connected device with `adb install -r` followed by that
-path. The Capacitor application ID is `tn.tekup.cinematch`. The Camera plugin
-is already installed; run `npx cap sync android` after every web build or
-native-plugin configuration change.
+The copy used for the project demo is `CineMatch-debug.apk` in the repository
+root. The Capacitor application ID is `tn.tekup.cinematch`. A release APK for
+distribution requires a release signing key and release build configuration.
