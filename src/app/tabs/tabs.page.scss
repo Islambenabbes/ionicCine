@@ -1,0 +1,24 @@
+
+.app-tab-bar {
+  --background: rgba(24, 20, 34, 0.97);
+  --border: 1px solid rgba(255, 255, 255, 0.06);
+  height: calc(68px + var(--ion-safe-area-bottom));
+  padding: 6px 10px var(--ion-safe-area-bottom);
+  box-shadow: 0 -12px 34px rgba(18, 14, 27, 0.22);
+}
+
+ion-tab-button {
+  --color: #8f8999;
+  --color-selected: #ff8264;
+  --ripple-color: rgba(243, 107, 74, 0.16);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+ion-tab-button::part(native) {
+  border-radius: 18px;
+}
+
+ion-icon {
+  font-size: 1.45rem;
+}

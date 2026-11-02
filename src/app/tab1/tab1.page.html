@@ -1,0 +1,97 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="cinema-toolbar">
+    <ion-title>
+      <span class="brand-small">CINE<span>MATCH</span></span>
+    </ion-title>
+    <ion-buttons slot="end">
+      @if (appData.isAdmin()) {
+      <ion-button aria-label="Open administration" (click)="openAdmin()">
+        <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
+      </ion-button>
+      }
+      <ion-button class="disconnect-button" aria-label="Disconnect" (click)="disconnect()">
+        <ion-icon slot="start" name="log-out-outline"></ion-icon>
+        <span>Disconnect</span>
+      </ion-button>
+      <div class="mini-avatar" aria-label="Current user">
+        @if (appData.currentUser()?.photoUrl) {
+        <img [src]="appData.currentUser()?.photoUrl" alt="Profile" />
+        } @else { {{ initials() }} }
+      </div>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <main class="movie-shell">
+    <section class="discover-hero">
+      <span>DISCOVER YOUR NEXT FAVORITE</span>
+      <h1>What are we watching?</h1>
+      <p>Explore movies, create your playlist, and improve your preference matches.</p>
+      <ion-searchbar
+        placeholder="Search movies or genres"
+        [debounce]="350"
+        (ionInput)="onSearch($event)"
+      ></ion-searchbar>
+    </section>
+
+    <section class="catalog-heading">
+      <div>
+        <span>{{ movieService.usingTmdb ? 'LIVE FROM TMDB' : 'DEMO CATALOGUE' }}</span>
+        <h2>Popular movies</h2>
+      </div>
+      <ion-badge>{{ movieService.movies().length }} films</ion-badge>
+    </section>
+
+    @if (movieService.loading()) {
+    <div class="loading-state">
+      <ion-spinner name="crescent"></ion-spinner>
+      <span>Loading the catalogue…</span>
+    </div>
+    } @else {
+    <section class="movie-grid">
+      @for (movie of movieService.movies(); track movie.id) {
+      <article class="movie-card">
+        <div class="poster-frame">
+          @if (movie.posterUrl) {
+          <img [src]="movie.posterUrl" [alt]="movie.title + ' poster'" loading="lazy" />
+          } @else {
+          <div class="poster-fallback">{{ movie.title.charAt(0) }}</div>
+          }
+          <ion-button
+            class="favorite-button"
+            shape="round"
+            [class.is-favorite]="appData.isFavorite(movie.id)"
+            [attr.aria-label]="appData.isFavorite(movie.id) ? 'Remove favorite' : 'Add favorite'"
+            (click)="toggleFavorite(movie)"
+          >
+            @if (updatingMovieId() === movie.id) {
+            <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+            <ion-icon slot="icon-only" [name]="appData.isFavorite(movie.id) ? 'heart' : 'heart-outline'"></ion-icon>
+            }
+          </ion-button>
+          @if (movie.rating > 0) {
+          <div class="rating-pill">
+            <ion-icon name="star"></ion-icon>
+            {{ movie.rating }}
+          </div>
+          }
+        </div>
+        <div class="movie-copy">
+          <span>{{ movie.releaseYear || 'New' }}</span>
+          <h3>{{ movie.title }}</h3>
+          <p>{{ movie.genres.slice(0, 2).join(' · ') || 'Movie' }}</p>
+        </div>
+      </article>
+      } @empty {
+      <div class="empty-catalog">
+        <ion-icon name="search-outline"></ion-icon>
+        <h2>No movies found</h2>
+        <p>Try another title or genre.</p>
+      </div>
+      }
+    </section>
+    }
+  </main>
+</ion-content>

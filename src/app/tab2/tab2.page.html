@@ -1,0 +1,77 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="cinema-toolbar">
+    <ion-title>My playlist</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <main class="favorites-shell">
+    <section class="profile-card">
+      <div class="profile-avatar">
+        @if (appData.currentUser()?.photoUrl) {
+        <img [src]="appData.currentUser()?.photoUrl" alt="Profile" />
+        } @else { {{ initials() }} }
+      </div>
+      <div class="profile-copy">
+        <span>MOVIE PROFILE</span>
+        <h1>{{ appData.currentUser()?.firstName }} {{ appData.currentUser()?.lastName }}</h1>
+        <p>{{ appData.currentUser()?.age }} years · {{ appData.currentUser()?.favorites?.length }} favorite movies</p>
+      </div>
+      <ion-button fill="clear" color="light" aria-label="Sign out" (click)="logout()">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </section>
+
+    <section class="playlist-heading">
+      <div>
+        <span>YOUR TASTE</span>
+        <h2>Favorite movies</h2>
+      </div>
+      <div class="taste-score">
+        <ion-icon name="sparkles-outline"></ion-icon>
+        Matching ready
+      </div>
+    </section>
+
+    <section class="favorite-list">
+      @for (movie of appData.currentUser()?.favorites ?? []; track movie.id) {
+      <article class="favorite-card">
+        <div class="favorite-poster">
+          @if (movie.posterUrl) {
+          <img [src]="movie.posterUrl" [alt]="movie.title + ' poster'" />
+          } @else {
+          <span>{{ movie.title.charAt(0) }}</span>
+          }
+        </div>
+        <div class="favorite-copy">
+          <span>{{ movie.releaseYear }} · {{ movie.genres.slice(0, 2).join(' / ') }}</span>
+          <h3>{{ movie.title }}</h3>
+          <p>{{ movie.actors.slice(0, 2).join(', ') || 'Cast loaded when synchronized' }}</p>
+          @if (movie.rating > 0) {
+          <div class="favorite-rating">
+            <ion-icon name="star"></ion-icon>
+            {{ movie.rating }} TMDB
+          </div>
+          }
+        </div>
+        <ion-button
+          fill="clear"
+          color="danger"
+          aria-label="Remove from favorites"
+          [disabled]="removingId() === movie.id"
+          (click)="removeFavorite(movie)"
+        >
+          <ion-icon slot="icon-only" name="heart-dislike-outline"></ion-icon>
+        </ion-button>
+      </article>
+      } @empty {
+      <div class="empty-playlist">
+        <div><ion-icon name="heart-dislike-outline"></ion-icon></div>
+        <h2>Your playlist is empty</h2>
+        <p>Add several movies so CineMatch can calculate meaningful matches.</p>
+        <ion-button routerLink="/tabs/discover">Discover movies</ion-button>
+      </div>
+      }
+    </section>
+  </main>
+</ion-content>
